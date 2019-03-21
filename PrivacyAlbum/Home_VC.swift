@@ -120,6 +120,17 @@ class Home_VC:
         
         let photoView = PhotoController()
         photoView.ctrNames = (self.ctrNames?[indexPath.row])!
+        photoView.didClickItemBlock = { (index,tapAnimation) in
+            
+             print("1111")
+             print("1111")
+             print("1111")
+             print("1111")
+             print("1111")
+        }
+        
+        
+        
         self.button?.isHidden = true
         //跳转
         self.navigationController?.pushViewController(photoView , animated: true)

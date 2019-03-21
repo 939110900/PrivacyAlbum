@@ -8,10 +8,11 @@
 
 import UIKit
 import Photos
+import SnapKit
+
+
 
 class PhotoController: UIViewController ,UICollectionViewDelegate,UICollectionViewDataSource{
-    
-
     
     
     var imgDatas = [Data?]()
@@ -22,6 +23,9 @@ class PhotoController: UIViewController ,UICollectionViewDelegate,UICollectionVi
     let footIdentifier   = "CollectionFootView"
     var button : UIButton?
     let statusbarHeight = UIApplication.shared.statusBarFrame.height + 44
+    
+    typealias blockClosure = (Int,Bool) ->Void
+    var didClickItemBlock:blockClosure?
 
     override func viewDidLoad() {
         
@@ -45,9 +49,17 @@ class PhotoController: UIViewController ,UICollectionViewDelegate,UICollectionVi
         //不传递触摸对象（即点击的按钮）
         self.button?.addTarget(self, action:#selector(tapped), for:.touchUpInside)
         
-        headView?.addSubview(self.button!)
+         headView?.addSubview(self.button!)
+
+        self.button?.snp.makeConstraints { (make) -> Void in
+
+            make.width.equalTo(100)
+            make.height.equalTo(40)// 链式语法直接定义宽高
+            make.center.equalToSuperview()
+
+        }
         
-        
+       
         
         let layout = UICollectionViewFlowLayout.init()
         layout.itemSize = CGSize(width: (UIScreen.main.bounds.width/2 - 10), height: UIScreen.main.bounds.width/2 - 10)
@@ -56,8 +68,8 @@ class PhotoController: UIViewController ,UICollectionViewDelegate,UICollectionVi
         layout.scrollDirection = .vertical
         layout.sectionInset = UIEdgeInsets.init(top: 5, left: 5, bottom: 5, right: 5)
         // 设置分区头视图和尾视图宽高
-        layout.headerReferenceSize = CGSize.init(width: UIScreen.main.bounds.width, height: 80)
-        layout.footerReferenceSize = CGSize.init(width: UIScreen.main.bounds.width, height: 80)
+        layout.headerReferenceSize = CGSize.init(width: UIScreen.main.bounds.width, height: 0)
+        layout.footerReferenceSize = CGSize.init(width: UIScreen.main.bounds.width, height: 0)
         
 
         
@@ -77,7 +89,7 @@ class PhotoController: UIViewController ,UICollectionViewDelegate,UICollectionVi
     }
     
     override func viewWillDisappear(_ animated: Bool) {
-        self.button?.isHidden = true
+//        self.button?.isHidden = true
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -96,11 +108,11 @@ class PhotoController: UIViewController ,UICollectionViewDelegate,UICollectionVi
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        return CGSize.init(width: UIScreen.main.bounds.width, height: 80)
+        return CGSize.init(width: UIScreen.main.bounds.width, height: 0)
     }
     //footer高度
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForFooterInSection section: Int) -> CGSize {
-        return CGSize.init(width: UIScreen.main.bounds.width, height: 80)
+        return CGSize.init(width: UIScreen.main.bounds.width, height: 0)
     }
     
 //    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
@@ -124,12 +136,17 @@ class PhotoController: UIViewController ,UICollectionViewDelegate,UICollectionVi
         //某个Cell被选择的事件处理
         print("Hello")
         
+        if didClickItemBlock != nil {
+            didClickItemBlock!(imgDatas.count,true)
+        }
+        
+        
         
     }
     
     @objc func tapped(){
-        imgDatas.removeAll()
-        HsuPhotosManager.share.takePhotos(7, true, true) { (datas) in
+//        imgDatas.removeAll()
+        HsuPhotosManager.share.takePhotos(1, true, true) { (datas) in
             self.imgDatas.append(contentsOf: datas)
             DispatchQueue.main.async {
                 self.collectView?.reloadData()
